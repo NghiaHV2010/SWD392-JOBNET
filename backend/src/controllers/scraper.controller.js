@@ -1,16 +1,34 @@
 import puppeteer from "puppeteer-extra";
 import StealthPlugin from 'puppeteer-extra-plugin-stealth';
-import { neon } from '@neondatabase/serverless'
-import { DATABASE_URL } from "../config/env.config.js";
+import cron from 'node-cron';
+import { createRequire } from 'module';
+const require = createRequire(import.meta.url);
+const { PrismaClient } = require('../generated/prisma/client');
+const prisma = new PrismaClient();
 
 puppeteer.use(StealthPlugin());
+let company_count = 0;
+let job_count = 0;
 
-const connectionURL = 'wss://browser.zenrows.com?apikey=f98cfae45d71e6f36175f011d621fef750d74c8d&proxy_country=vn';
+export const scheduleScraper = () => {
+    setTimeout(() => {console.log("HEllo")}, 5000)
+
+    cron.schedule('*/1 * * * *', async () => {
+        console.log(`🚀 Đang bắt đầu cào dữ liệu lúc: ${new Date().toLocaleString()}`);
+        try {
+            // await scaperController(); // đảm bảo hàm này không cần `req`, `res`
+            console.log("test dat lich 1p");
+
+            console.log(`✅ Cào dữ liệu thành công lúc: ${new Date().toLocaleString()}`);
+        } catch (err) {
+            console.error(`❌ Lỗi khi cào dữ liệu:`, err.message);
+        }
+    });
+}
 
 export const scaperController = async (req, res, next) => {
     let browser;
     let page;
-    // const browser = await puppeteer.connect({ browserWSEndpoint: connectionURL });
 
     try {
         browser = await puppeteer.launch({ headless: true });
@@ -39,11 +57,11 @@ export const scaperController = async (req, res, next) => {
         for (const link of companiesLinks) {
             const data = await getCompanyDetails(browser, link);
             companies.push(data);
-            // await saveCompanyToDataBase(data, link);            
+            company_count = company_count++;
             await delay(2000);
         }
 
-        // console.log(companies);
+        console.log("Total companies:", company_count, " | Total jobs: ", job_count);
         res.status(200).json({
             data: companies
         })
@@ -66,7 +84,10 @@ const getCompanyDetails = async (browser, link) => {
             timeout: 80000
         });
 
-        await page.waitForSelector('h1.company-detail-name', { timeout: 30000 });
+        const test = await page.waitForSelector('h1.company-detail-name', { timeout: 30000 });
+        console.log("test", test);
+
+
         const details = await page.evaluate(() => {
             const logo = document.querySelector('.company-image-logo>img')?.src;
 
@@ -111,34 +132,34 @@ const getCompanyDetails = async (browser, link) => {
 }
 
 const saveCompanyToDataBase = async ({ logo, address, company_name, description, website }, link) => {
-    let company;
     try {
-        const sql = neon(DATABASE_URL);
-
-        const response = await sql`INSERT INTO companies 
-                                        (companyname, address, description, imageurl, sourceurl, source_name, website) 
-                                    VALUES (${company_name}, ${address}, ${description}, ${logo}, ${link}, 'TOPCV', ${website}) 
-                                    ON CONFLICT (companyname) 
-                                    DO UPDATE SET 
-                                        address = EXCLUDED.address,
-                                        description = EXCLUDED.description,
-                                        imageurl = EXCLUDED.imageurl,
-                                        sourceurl = EXCLUDED.sourceurl,
-                                        source_name = EXCLUDED.source_name,
-                                        website = EXCLUDED.website,
-                                        updated_at = CURRENT_TIMESTAMP`;
-
         const date = new Date();
 
-        if (response.length == 0) {
-            company = await sql`SELECT * FROM companies WHERE companyname = ${company_name}`;
-            console.log(`🛠️(UPDATED) ${company_name} updated at: ${date}`);
-        } else if (response.length > 0) {
-            company = response;
-            console.log(`✅(SAVED) ${company_name} saved successfully: ${date}`);
-        }
+        const company = await prisma.companies.upsert({
+            where: {
+                company_name: company_name
+            },
+            update: {
+                address: address,
+                description: description,
+                imageUrl: logo,
+                sourceUrl: link,
+                source_name: 'TOPCV',
+                website: website
+            },
+            create: {
+                company_name: company_name,
+                address: address,
+                description: description,
+                imageUrl: logo,
+                sourceUrl: link,
+                source_name: 'TOPCV',
+                website: website
+            }
+        });
 
-        return company[0];
+        console.log(`✅(UPSERTED) ${company.company_name} at ${date}`);
+        return company;
     } catch (error) {
         console.log(error);
     }
@@ -184,8 +205,6 @@ const getJobsByCompany = async (companyDetailsPage, browser) => {
 const getJobDetails = async (jobs_list, browser, company_id) => {
     let page;
     try {
-        const sql = neon(DATABASE_URL);
-
         for (const job of jobs_list) {
             page = await browser.newPage();
 
@@ -203,7 +222,14 @@ const getJobDetails = async (jobs_list, browser, company_id) => {
                     return document.querySelector('.job-detail__company--information-item.company-field>.company-value')?.innerText.trim();
                 });
 
-                await sql`UPDATE companies SET field = ${company_field} WHERE id = ${company_id}`;
+                await prisma.companies.update({
+                    where: {
+                        id: company_id
+                    },
+                    data: {
+                        field: company_field
+                    }
+                });
             }
 
             const job_details = await page.evaluate(() => {
@@ -265,25 +291,44 @@ const getJobDetails = async (jobs_list, browser, company_id) => {
 
 const saveJobToDatabase = async ({ title, salary, apply_location, experience, tags, description, endDate, job_level, education, quantity, form_of_work }, source_url, company_id) => {
     try {
-        const sql = neon(DATABASE_URL);
+        const isExisted = await prisma.jobs.findFirst({
+            where: {
+                title: title
+            }
+        });
 
-        const isExisted = await sql`SELECT * FROM jobs WHERE compid = ${company_id} AND title = ${title}`;
-
-        if (isExisted.length == 0) {
+        if (!isExisted) {
             const rawDate = endDate.match(/\d{2}\/\d{2}\/\d{4}/)?.[0];
             const [day, month, year] = rawDate ? rawDate.split('/') : [];
             const convertedEndDate = rawDate ? new Date(`${year}-${month}-${day}`) : null;
 
             const convertedQuantity = +quantity.split(' ')[0];
 
-            console.log({ title, quantity, convertedQuantity, endDate, convertedEndDate });
+            // console.log({ title, quantity, convertedQuantity, endDate, convertedEndDate });
 
-            const response = await sql`INSERT INTO jobs (compid, title, salary, description, enddate, apply_location, experience, form_of_work, job_level, education, tags, quantity, source_url)
-                                             VALUES (${company_id}, ${title}, ${salary}, ${description}, ${convertedEndDate}, ${apply_location}, ${experience}, ${form_of_work}, ${job_level}, ${education}, ${tags}, ${convertedQuantity}, ${source_url})`;
+            const response = await prisma.jobs.create({
+                data: {
+                    company_id: company_id,
+                    title,
+                    salary,
+                    description,
+                    endDate: convertedEndDate,
+                    apply_location,
+                    experience,
+                    form_of_work,
+                    job_level,
+                    education,
+                    tags,
+                    quantity: convertedQuantity,
+                    sourceUrl: source_url
+                }
+            });
 
-            console.log(response);
+            // console.log(response);
 
-            if (response.length > 0) {
+
+            if (response) {
+                job_count = job_count++;
                 const date = new Date();
                 console.log(`>>> ✅(SAVED) ${company_id} / ${title} saved successfully: ${date}`);
 

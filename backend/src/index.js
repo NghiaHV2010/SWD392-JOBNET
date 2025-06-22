@@ -5,6 +5,7 @@ import { errorMiddleware } from "./middlewares/error.middleware.js";
 import uploadRoute from "./routes/upload.routes.js";
 import cors from "cors";
 import scraperRoute from "./routes/scraper.routes.js";
+import authRoute from "./routes/auth.routes.js";
 
 const app = express();
 
@@ -18,6 +19,7 @@ app.use(cors({
 
 app.use("/api/v1/", uploadRoute);
 app.use("/api/v1/", scraperRoute);
+app.use("/api/v1/", authRoute);
 
 app.use(errorMiddleware);
 

@@ -1,0 +1,103 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma/client"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Users {
+  id          String   @id @default(uuid())
+  username    String   @db.VarChar(50)
+  email       String   @db.VarChar(100)
+  password    String   @db.VarChar(255)
+  imageUrl    String?  @db.Text
+  description String?  @db.Text
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+  cvs         Cvs[]
+}
+
+model Companies {
+  id           String   @id @default(uuid())
+  company_name String   @db.VarChar(255)
+  email        String?  @db.VarChar(100)
+  address      String?  @db.Text
+  description  String?  @db.Text
+  website      String?  @db.Text
+  field        String?  @db.VarChar(100)
+  imageUrl     String?  @db.Text
+  sourceUrl    String?  @db.Text
+  source_name  String?  @db.VarChar(150)
+  employees    Int?     @db.Int
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt
+  jobs         Jobs[]
+
+  @@unique([company_name])
+}
+
+model Cvs {
+  id           String      @id @default(uuid())
+  fullname     String      @db.VarChar(50)
+  phone        String?     @db.VarChar(20)
+  email        String?     @db.VarChar(100)
+  address      String?     @db.Text
+  description  String?     @db.Text
+  experience   String?     @db.Text
+  skills       String?     @db.Text
+  education    String?     @db.Text
+  certificates String?     @db.Text
+  others       String?     @db.Text
+  apply_job    String?     @db.Text
+  hobbies      String?     @db.Text
+  references   String?     @db.Text
+  languages    String?     @db.Text
+  user_id      String
+  user         Users       @relation(fields: [user_id], references: [id])
+  matchings    Matchings[]
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
+
+model Jobs {
+  id             String      @id @default(uuid())
+  title          String      @db.VarChar(255)
+  salary         String?     @db.VarChar(80)
+  description    String?     @db.Text
+  endDate        DateTime?   @db.Date
+  apply_location String?     @db.VarChar(150)
+  experience     String?     @db.VarChar(50)
+  form_of_work   String?     @db.VarChar(50)
+  job_level      String?     @db.VarChar(50)
+  education      String?     @db.VarChar(50)
+  tags           String?     @db.Text
+  quantity       Int?        @db.Int
+  sourceUrl      String?     @db.Text
+  company_id     String
+  company        Companies   @relation(fields: [company_id], references: [id])
+  matchings      Matchings[]
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
+
+model Matchings {
+  id     String  @id @default(uuid())
+  score  Decimal @db.Decimal(5, 2)
+  cv_id  String
+  job_id String
+  cv     Cvs     @relation(fields: [cv_id], references: [id])
+  job    Jobs    @relation(fields: [job_id], references: [id])
+
+  created_at DateTime @default(now())
+}
