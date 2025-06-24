@@ -55,7 +55,14 @@ const ScraperPage = () => {
                             repeat &&
                             <>
                                 <div className="flex items-center justify-around gap-2">
-                                    <input type='number' defaultValue={30} className='input bg-white border-neutral-400' />
+                                    <input
+                                        type='number'
+                                        maxLength={2}
+                                        max={59}
+                                        min={0}
+                                        defaultValue={30}
+                                        className='input bg-white border-neutral-400'
+                                    />
                                     <select defaultValue="Pick a color" className="select border-neutral-400 bg-white">
                                         <option>Second</option>
                                         <option selected>Minute</option>
@@ -86,19 +93,47 @@ const ScraperPage = () => {
                         {
                             schedule &&
                             <>
-                                <button popoverTarget="cally-popover1" className="input bg-white border-neutral-400 " id="cally1">
-                                    {date ? date : "Pick a date"}
+                                <button popoverTarget="cally-popover1" className="input bg-white border-neutral-400 mt-2" id="cally1">
+                                    {date || "Pick a date"}
                                 </button>
-                                <div popover="manual"  id="cally-popover1" className="dropdown bg-white rounded-box shadow-lg">
+                                <div popover='auto' id="cally-popover1" className="dropdown bg-white rounded-box shadow-lg ">
                                     <calendar-date class="cally" onchange={(e) => {
                                         console.log(e.target.value);
-                                        
                                         setDate(e.target.value);
+                                        document.getElementById('cally1').click()
                                     }}>
-                                        <svg aria-label="Previous" className="fill-current size-4" slot="previous" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M15.75 19.5 8.25 12l7.5-7.5"></path></svg>
-                                        <svg aria-label="Next" className="fill-current size-4" slot="next" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m8.25 4.5 7.5 7.5-7.5 7.5"></path></svg>
+                                        <svg aria-label="Previous" className="fill-current size-4 text-black hover:text-white" slot="previous" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M15.75 19.5 8.25 12l7.5-7.5"></path></svg>
+                                        <svg aria-label="Next" className="fill-current size-4 text-black hover:text-white" slot="next" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m8.25 4.5 7.5 7.5-7.5 7.5"></path></svg>
                                         <calendar-month></calendar-month>
                                     </calendar-date>
+                                </div>
+                                <div className="flex items-center justify-center gap-2 mt-2">
+                                    <input
+                                        type='number'
+                                        maxLength={2}
+                                        max={23}
+                                        min={0}
+                                        defaultValue={0}
+                                        className='input bg-white border-neutral-400'
+                                    />
+                                    :
+                                    <input
+                                        type='number'
+                                        maxLength={2}
+                                        max={59}
+                                        min={0}
+                                        defaultValue={0}
+                                        className='input bg-white border-neutral-400'
+                                    />
+                                    :
+                                    <input
+                                        type='number'
+                                        maxLength={2}
+                                        max={59}
+                                        min={0}
+                                        defaultValue={0}
+                                        className='input bg-white border-neutral-400'
+                                    />
                                 </div>
                             </>
                         }
@@ -106,11 +141,8 @@ const ScraperPage = () => {
                 </div>
             </div>
 
-            <div className="mb-12 mt-8 flex justify-center items-center gap-4">
+            <div className="mb-12 mt-8 flex justify-center items-center">
                 <button className="btn btn-wide btn-primary btn-xl">Start Scraping</button>
-                <button className="btn btn-square p-7 btn-outline btn-primary hover:bg-base-content">
-                    <div className="text-3xl">📆</div>
-                </button>
             </div>
             <div className="h-36 w-full">
                 <LogoCarousel />
