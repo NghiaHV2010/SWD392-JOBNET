@@ -10,6 +10,7 @@ import java.util.List;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Response {
     private StatusCode statusCode;
+    private String message;
     private CompanyDto companyDto;
     private CvDto cvDto;
     private JobDto jobDto;

@@ -1,5 +1,6 @@
 package swd.jobnet.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.annotations.ColumnDefault;
@@ -27,6 +28,7 @@ public class Job {
     @Column(name = "description", length = 256)
     private String description;
 
+    @JsonIgnore
     @Column(name = "endDate")
     private LocalDate endDate;
 
@@ -56,17 +58,21 @@ public class Job {
     @Column(name = "sourceUrl", length = 256)
     private String sourceUrl;
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "company_id", nullable = false)
     private Company company;
 
+    @JsonIgnore
     @ColumnDefault("current_timestamp(3)")
     @Column(name = "created_at", nullable = false)
     private Instant createdAt;
 
+    @JsonIgnore
     @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "job")
     private Set<Matching> matchings = new LinkedHashSet<>();
 
