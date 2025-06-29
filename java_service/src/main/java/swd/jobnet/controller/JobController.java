@@ -1,11 +1,42 @@
 package swd.jobnet.controller;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import swd.jobnet.dto.CompanyDto;
+import swd.jobnet.dto.JobDto;
+import swd.jobnet.dto.Response;
+import swd.jobnet.service.JobService;
 
 @RestController
 @RequestMapping("/api/job")
-class JobController {
+public class JobController {
 
+    @Autowired
+    private JobService jobService;
+
+    @GetMapping("/get-by-company-name")
+    public ResponseEntity<Response> getByCompanyName(@RequestBody CompanyDto companyDto){
+        Response response = jobService.getJobsByCompanyName(companyDto);
+        return ResponseEntity.status(response.getStatusCode().getCode()).body(response);
+    }
+
+    @GetMapping("/export-by-company-name")
+    public ResponseEntity<Response> exportByCompanyName(@RequestBody CompanyDto companyDto){
+        Response response = jobService.exportJobsByCompanyName(companyDto);
+        return ResponseEntity.status(response.getStatusCode().getCode()).body(response);
+    }
+
+    @GetMapping("/get-all")
+    public ResponseEntity<Response> getAllJobs(@RequestParam int page){
+        Response response = jobService.getAllJobs(page);
+        return ResponseEntity.status(response.getStatusCode().getCode()).body(response);
+    }
+
+    @GetMapping("/get-by-id")
+    public ResponseEntity<Response> getJobById(@RequestBody JobDto jobDto){
+        Response response = jobService.getJobById(jobDto);
+        return ResponseEntity.status(response.getStatusCode().getCode()).body(response);
+    }
 }
