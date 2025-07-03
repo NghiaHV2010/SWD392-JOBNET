@@ -1,9 +1,12 @@
 package swd.jobnet.util;
 
 import org.springframework.stereotype.Component;
+import swd.jobnet.dto.CvDto;
 import swd.jobnet.dto.JobDto;
+import swd.jobnet.dto.MatchingDto;
 import swd.jobnet.dto.UserDto;
 import swd.jobnet.model.Job;
+import swd.jobnet.model.Matching;
 import swd.jobnet.model.User;
 
 @Component
@@ -41,5 +44,20 @@ public class DtoConverter {
         jobDto.setTags(job.getTags());
 
         return jobDto;
+    }
+
+    public static MatchingDto convertToMatchingDto(Matching matching){
+        MatchingDto matchingDto = new MatchingDto();
+        CvDto cvDto = new CvDto();
+        JobDto jobDto = new JobDto();
+
+        cvDto.setId(matching.getCv().getId());
+        jobDto.setId(matching.getJob().getId());
+
+        matchingDto.setId(matching.getId());
+        matchingDto.setCvDto(cvDto);
+        matchingDto.setJobDto(jobDto);
+        matchingDto.setScore(matching.getScore());
+        return matchingDto;
     }
 }

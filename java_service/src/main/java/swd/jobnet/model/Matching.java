@@ -3,6 +3,7 @@ package swd.jobnet.model;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -13,6 +14,7 @@ import java.time.Instant;
 public class Matching {
     @Id
     @Column(name = "id", nullable = false, length = 191)
+    @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
 
     @Column(name = "score", nullable = false, precision = 5, scale = 2)
@@ -26,7 +28,7 @@ public class Matching {
     @JoinColumn(name = "job_id", nullable = false)
     private Job job;
 
-    @ColumnDefault("current_timestamp(3)")
+    @CreationTimestamp
     @Column(name = "created_at", nullable = false)
     private Instant createdAt;
 
