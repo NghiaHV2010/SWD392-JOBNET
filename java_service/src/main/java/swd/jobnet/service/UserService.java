@@ -24,15 +24,19 @@ public class UserService {
             List<UserDto> userDtos = new ArrayList<>();
             if (users.isEmpty()) {
                 response.setStatusCode(StatusCode.NO_CONTENT);
+                response.setMessage(StatusCode.NO_CONTENT.getDescription());
             }else{
                 userDtos = users.stream()
                         .map(DtoConverter::convertToUserDto)
                         .toList();
+                response.setStatusCode(StatusCode.OK);
+                response.setMessage(StatusCode.OK.getDescription());
+                response.setUserDtos(userDtos);
             }
-            response.setUserDtos(userDtos);
-            response.setStatusCode(StatusCode.OK);
+
         }catch (Exception e){
             response.setStatusCode(StatusCode.INTERNAL_SERVER_ERROR);
+            response.setMessage(StatusCode.INTERNAL_SERVER_ERROR.getDescription() + "tại UserService: " + e.getMessage());
         }
         return response;
     }
