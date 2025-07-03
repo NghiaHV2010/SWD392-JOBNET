@@ -3,6 +3,7 @@ package swd.jobnet.service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -21,7 +22,8 @@ import java.util.List;
 @Service
 public class JobService {
 
-    private final String JOB_FILE_PATH = "save_files/jobs.json";
+    @Value("${file.path.job}")
+    private String JOB_FILE_PATH;
 
     @Autowired
     private JobRepository jobRepository;

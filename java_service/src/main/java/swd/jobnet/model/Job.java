@@ -1,9 +1,9 @@
 package swd.jobnet.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.persistence.*;
 import lombok.Data;
-import org.hibernate.annotations.ColumnDefault;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -13,6 +13,7 @@ import java.util.Set;
 @Data
 @Entity
 @Table(name = "jobs")
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class Job {
     @Id
     @Column(name = "id", nullable = false, length = 191)
@@ -64,7 +65,6 @@ public class Job {
     private Company company;
 
     @JsonIgnore
-    @ColumnDefault("current_timestamp(3)")
     @Column(name = "created_at", nullable = false)
     private Instant createdAt;
 
