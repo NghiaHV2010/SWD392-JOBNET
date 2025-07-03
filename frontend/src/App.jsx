@@ -6,6 +6,8 @@ import { useAuthStore } from './store/auth.store.js';
 import { useEffect } from 'react';
 import { Loader } from "lucide-react";
 import ScraperPage from './pages/ScraperPage.jsx';
+import HomePage from './pages/HomePage.jsx';
+import UploadCVPage from './pages/UploadCVPage.jsx';
 
 function App() {
   const { isCheckingAuth, authUser, checkAuth } = useAuthStore();
@@ -25,10 +27,11 @@ function App() {
 
   return (
     <Routes>
-      <Route index path='/' element={<></>} />
+      <Route index path='/' element={<HomePage/>} />
       <Route index path='/login' element={<></>} />
       <Route index path='/register' element={<></>} />
       <Route index path='/scraper' element={<ScraperPage/>} />
+      <Route index path='/upload-cv' element={<UploadCVPage/>} />
     </Routes>
   );
 }

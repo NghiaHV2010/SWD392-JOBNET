@@ -1,9 +1,9 @@
 @import "tailwindcss";
 
 .carousel-item-logo {
-    @apply justify-center w-40 cursor-pointer transition-all;
+    @apply justify-center w-40 cursor-pointer;
 }
 
 .carousel-item-logo > img:hover {
-    @apply grayscale-0
+    @apply grayscale-0 scale-105
 }
