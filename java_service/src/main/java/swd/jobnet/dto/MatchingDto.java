@@ -16,5 +16,7 @@ import java.time.Instant;
 public class MatchingDto implements Serializable {
     private String id;
     private BigDecimal score;
+    private CvDto cvDto;
+    private JobDto jobDto;
     private Instant createdAt;
 }
