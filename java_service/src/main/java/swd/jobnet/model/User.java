@@ -2,7 +2,6 @@ package swd.jobnet.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
-import org.hibernate.annotations.ColumnDefault;
 
 import java.time.Instant;
 import java.util.LinkedHashSet;
@@ -33,7 +32,6 @@ public class User {
     @Column(name = "description", length = 256)
     private String description;
 
-    @ColumnDefault("current_timestamp(3)")
     @Column(name = "created_at", nullable = false)
     private Instant createdAt;
 

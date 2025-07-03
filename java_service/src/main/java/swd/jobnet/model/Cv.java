@@ -1,8 +1,11 @@
 package swd.jobnet.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.persistence.*;
 import lombok.Data;
-import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.Instant;
 import java.util.LinkedHashSet;
@@ -11,9 +14,11 @@ import java.util.Set;
 @Data
 @Entity
 @Table(name = "cvs")
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class Cv {
     @Id
     @Column(name = "id", nullable = false, length = 191)
+    @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
 
     @Column(name = "fullname", nullable = false, length = 50)
@@ -69,17 +74,22 @@ public class Cv {
     @Column(name = "languages", length = 256)
     private String languages;
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @ColumnDefault("current_timestamp(3)")
+    @JsonIgnore
+    @CreationTimestamp
     @Column(name = "created_at", nullable = false)
     private Instant createdAt;
 
+    @JsonIgnore
+    @UpdateTimestamp
     @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "cv")
     private Set<Matching> matchings = new LinkedHashSet<>();
 
