@@ -1,15 +1,14 @@
-import React from 'react';
-import { menuNavBarItemsUser } from '../../utils/constant';
-import { Outlet } from 'react-router-dom';
+import React from "react";
+import { menuItems } from "./Navbar";
+import { Outlet } from "react-router-dom";
+import { Navigation } from "./Navigation";
 
 export const PublicUser = () => {
   return (
-    <div className="w-full flex-wrap flex justify-end">
-      
-        <Outlet />
-      
-    </div>
-  )
-}
+    <Navigation menuNavbar={menuItems}>
+      <Outlet />
+    </Navigation>
+  );
+};
 
 export default PublicUser;

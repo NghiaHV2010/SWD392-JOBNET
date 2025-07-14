@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Button, Card, Row, Col, Statistic } from "antd";
 import {
   Upload,
@@ -16,6 +16,8 @@ import {
 } from "lucide-react";
 
 const HomePage = () => {
+  const [currentPage, setCurrentPage] = useState("home");
+
   const features = [
     {
       icon: <Upload className="w-8 h-8" />,
