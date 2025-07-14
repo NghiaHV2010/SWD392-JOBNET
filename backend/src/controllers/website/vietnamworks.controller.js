@@ -284,7 +284,8 @@ const saveJobToDatabase = async ({ title, salary, apply_location, experience, ta
     try {
         const isExisted = await prisma.jobs.findFirst({
             where: {
-                title: title
+                title,
+                company_id
             }
         });
 

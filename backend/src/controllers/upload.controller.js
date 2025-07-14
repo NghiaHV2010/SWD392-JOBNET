@@ -1,12 +1,12 @@
 import { extractTextFromCV } from "../utils/fileReader.js";
 import OpenAI from "openai";
-import { GEMINI_API_KEY, OPENAI_API_KEY } from "../config/env.config.js";
+import { GEMINI_API_KEY } from "../config/env.config.js";
 import { GoogleGenAI } from "@google/genai";
 import { HTTP_SUCCESS } from "../constants/httpCode.js";
-
-const openAI = new OpenAI({
-    apiKey: OPENAI_API_KEY
-})
+import { createRequire } from 'module';
+const require = createRequire(import.meta.url);
+const { PrismaClient } = require('../generated/prisma/client');
+const prisma = new PrismaClient();
 
 const ai = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
 
@@ -63,7 +63,14 @@ export const uploadFile = async (req, res, next) => {
         "link": ""
         }
     ],
-    "summary": ""
+    "summary": "",
+    "languages": [
+        {
+        "name":
+        "certificate": ""
+        }
+    ],
+    "apply_job": ""
 }
 
  - Keys explain:
@@ -98,6 +105,10 @@ export const uploadFile = async (req, res, next) => {
  10.3. name - the name of certificate
  10.4. link - the link of certificate
  11. summary - user's introduction or user's description
+ 12. languages - an array of user's languages, each language is an object
+ 12.1. name - name of language, example: English, Japanese,...
+ 12.2. certificate - certificate of language, example: JLPT, ielts,...
+ 13. apply_job - user's candidate position
 
  *Note: 
   - Some resume is in different languages
@@ -116,6 +127,25 @@ export const uploadFile = async (req, res, next) => {
             
             const parseText = JSON.parse(response.text);
             console.log(parseText);
+
+            const cv = await prisma.cvs.create({
+                data: {
+                    fullname: parseText.fullname,
+                    email: parseText.email,
+                    phone: parseText.phone,
+                    address: parseText.address,
+                    skills: JSON.stringify(parseText.skills),
+                    experience: JSON.stringify(parseText.experiences),
+                    certificates: JSON.stringify(parseText.certificates),
+                    languages: JSON.stringify(parseText.languages),
+                    education: JSON.stringify(parseText.educations),
+                    description: parseText.summary,
+                    apply_job: parseText.apply_job,
+                    projects: JSON.stringify(parseText.projects),
+                    user_id: "dd30d150-ee16-43aa-9663-7bbdda957ca6"
+                }
+            });            
+
             return res.status(HTTP_SUCCESS.OK).json({
                 data: parseText
             })

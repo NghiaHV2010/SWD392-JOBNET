@@ -14,8 +14,11 @@ import {
   CheckCircle,
   Star,
 } from "lucide-react";
+import { useNavigate } from "react-router";
 
 const HomePage = () => {
+  const navigate = useNavigate();
+
   const features = [
     {
       icon: <Upload className="w-8 h-8" />,
@@ -83,6 +86,7 @@ const HomePage = () => {
                 size="large"
                 className="bg-blue-600 hover:bg-blue-700 border-none h-12 px-8 text-lg font-semibold"
                 icon={<Upload className="w-5 h-5" />}
+                onClick={() => navigate('/upload')}
               >
                 Tải CV lên ngay
               </Button>

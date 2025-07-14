@@ -9,6 +9,9 @@ import {
   ArrowLeft,
   Home,
 } from "lucide-react";
+import CV from "../components/CV.jsx";
+import { sampleResumeData } from "../constants/sampleData.js";
+import { axiosConfig } from "../config/axios.config";
 
 function UploadCVPage() {
   const [dragActive, setDragActive] = useState(false);
@@ -18,6 +21,7 @@ function UploadCVPage() {
   const [error, setError] = useState(null);
   const fileInputRef = useRef(null);
   const [jobs, setJobs] = useState([]);
+  const [resume, setResume] = useState(null);
 
   const formatFileSize = (bytes) => {
     if (bytes === 0) return "0 Bytes";
@@ -112,16 +116,21 @@ function UploadCVPage() {
     formData.append("cv", uploadedFile.file);
 
     try {
-      const response = await fetch("http://localhost:3000/api/v1/upload-cv", {
-        method: "POST",
-        body: formData,
+      const response = await axiosConfig({
+        headers: { "Content-Type": "multipart/form-data" },
+        method: "post",
+        url: "http://localhost:3000/api/v1/upload-cv",
+        data: formData
       });
+      console.log(response);
 
-      if (!response.ok) throw new Error("Failed to upload CV");
+      if (response.status !== 200) throw new Error("Failed to upload CV");
 
-      const data = await response.json();
-      setJobs(data.jobs || []);
+      const data = response.data?.data;
+      // setJobs(data.jobs || []);
+      setResume(data)
       setUploadComplete(true);
+      document.getElementById('my_modal_5').showModal();
     } catch (err) {
       console.error(err);
       setError("Upload failed. Please try again.");
@@ -191,11 +200,10 @@ function UploadCVPage() {
             <div className="p-8">
               {!uploadedFile ? (
                 <div
-                  className={`relative border-2 border-dashed rounded-xl p-12 text-center transition-all duration-200 ${
-                    dragActive
+                  className={`relative border-2 border-dashed rounded-xl p-12 text-center transition-all duration-200 ${dragActive
                       ? "border-indigo-500 bg-indigo-50 scale-105"
                       : "border-gray-300 hover:border-indigo-400 hover:bg-gray-50"
-                  } cursor-pointer`}
+                    } cursor-pointer`}
                   onDragEnter={handleDrag}
                   onDragLeave={handleDrag}
                   onDragOver={handleDrag}
@@ -212,14 +220,12 @@ function UploadCVPage() {
 
                   <div className="flex flex-col items-center">
                     <div
-                      className={`w-20 h-20 rounded-full flex items-center justify-center mb-6 transition-colors ${
-                        dragActive ? "bg-indigo-200" : "bg-gray-100"
-                      }`}
+                      className={`w-20 h-20 rounded-full flex items-center justify-center mb-6 transition-colors ${dragActive ? "bg-indigo-200" : "bg-gray-100"
+                        }`}
                     >
                       <Upload
-                        className={`w-10 h-10 ${
-                          dragActive ? "text-indigo-600" : "text-gray-400"
-                        }`}
+                        className={`w-10 h-10 ${dragActive ? "text-indigo-600" : "text-gray-400"
+                          }`}
                       />
                     </div>
 
@@ -306,13 +312,12 @@ function UploadCVPage() {
                   <button
                     onClick={handleUpload}
                     disabled={uploading || uploadComplete}
-                    className={`flex-1 flex items-center justify-center px-6 py-3 rounded-xl font-semibold transition-all duration-200 ${
-                      uploadComplete
+                    className={`flex-1 flex items-center justify-center px-6 py-3 rounded-xl font-semibold transition-all duration-200 ${uploadComplete
                         ? "bg-green-100 text-green-700 cursor-default"
                         : uploading
-                        ? "bg-indigo-400 text-white cursor-not-allowed"
-                        : "bg-indigo-600 text-white hover:bg-indigo-700 hover:shadow-lg transform hover:-translate-y-0.5"
-                    }`}
+                          ? "bg-indigo-400 text-white cursor-not-allowed"
+                          : "bg-indigo-600 text-white hover:bg-indigo-700 hover:shadow-lg transform hover:-translate-y-0.5"
+                      }`}
                   >
                     {uploading ? (
                       <>
@@ -351,6 +356,17 @@ function UploadCVPage() {
           </div>
         </div>
       </div>
+      <dialog id="my_modal_5" className="modal modal-bottom sm:modal-middle">
+        <div className="modal-box max-w-[60rem] bg-neutral-100">
+          <CV data={resume || sampleResumeData} />
+          <div className="modal-action">
+            <form method="dialog">
+              {/* if there is a button in form, it will close the modal */}
+              <button className="btn">Close</button>
+            </form>
+          </div>
+        </div>
+      </dialog>
     </div>
   );
 }
