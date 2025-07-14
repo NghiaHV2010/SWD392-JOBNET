@@ -1,5 +1,4 @@
 import React, { useState, useRef, useCallback } from "react";
-import { Link } from "react-router-dom";
 import {
   Upload,
   FileText,
@@ -7,7 +6,6 @@ import {
   CheckCircle,
   AlertCircle,
   ArrowLeft,
-  Home,
 } from "lucide-react";
 import CV from "../components/CV.jsx";
 import { sampleResumeData } from "../constants/sampleData.js";
@@ -132,49 +130,27 @@ function UploadCVPage() {
       setUploadComplete(true);
       document.getElementById('my_modal_5').showModal();
     } catch (err) {
-      console.error(err);
       setError("Upload failed. Please try again.");
     } finally {
       setUploading(false);
     }
   };
 
+  const goBack = () => {
+    window.history.back();
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50">
-      {/* Navigation */}
-      <nav className="bg-white/80 backdrop-blur-md border-b border-gray-100 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center">
-              <Link to="/" className="flex-shrink-0 flex items-center">
-                <FileText className="w-8 h-8 text-indigo-600 mr-2" />
-                <span className="text-xl font-bold text-gray-900">
-                  CVPortal
-                </span>
-              </Link>
-            </div>
-            <div className="flex items-center space-x-4">
-              <Link
-                to="/"
-                className="inline-flex items-center text-gray-600 hover:text-indigo-600 transition-colors"
-              >
-                <Home className="w-4 h-4 mr-1" />
-                Home
-              </Link>
-            </div>
-          </div>
-        </div>
-      </nav>
-
       {/* Back Button */}
       <div className="max-w-2xl mx-auto px-4 pt-8">
-        <Link
-          to="/"
+        <button
+          onClick={goBack}
           className="inline-flex items-center text-gray-600 hover:text-indigo-600 transition-colors mb-8"
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
           Back to Home
-        </Link>
+        </button>
       </div>
 
       {/* Upload Section */}

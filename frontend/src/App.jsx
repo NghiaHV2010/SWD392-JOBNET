@@ -1,6 +1,4 @@
 // UploadCV.jsx
-import React, { useState } from "react";
-import axios from "axios";
 import { Route, Routes } from "react-router";
 import { useAuthStore } from "./store/auth.store.js";
 import { useEffect } from "react";
@@ -14,6 +12,7 @@ import {
 } from "./components/index.jsx";
 import { HomePage, PublicLayout } from "./pages/index.jsx";
 import PublicUser from "./pages/user/PublicUser.jsx";
+import JobListPage from "./pages/JobListPage.jsx";
 
 function App() {
   const { isCheckingAuth, authUser, checkAuth } = useAuthStore();
@@ -43,6 +42,7 @@ function App() {
         <Route index path="scraper" element={<ScraperPage />} />
         <Route index path="suggestion" element={<SuggestionsPage />} />
         <Route index path="report" element={<ReportPage />} />
+        <Route path="/jobs" element={<JobListPage />} />
       </Route>
     </Routes>
   );
