@@ -1,12 +1,9 @@
 import { extractTextFromCV } from "../utils/fileReader.js";
-import OpenAI from "openai";
-import { GEMINI_API_KEY, OPENAI_API_KEY } from "../config/env.config.js";
+
+import { GEMINI_API_KEY } from "../config/env.config.js";
 import { GoogleGenAI } from "@google/genai";
 import { HTTP_SUCCESS } from "../constants/httpCode.js";
 
-const openAI = new OpenAI({
-    apiKey: OPENAI_API_KEY
-})
 
 const ai = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
 
