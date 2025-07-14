@@ -14,6 +14,7 @@ import swd.jobnet.dto.Response;
 import swd.jobnet.enums.StatusCode;
 import swd.jobnet.model.Job;
 import swd.jobnet.repository.JobRepository;
+import swd.jobnet.util.CsvExporter;
 import swd.jobnet.util.DtoConverter;
 
 import java.io.FileWriter;
@@ -24,6 +25,9 @@ public class JobService {
 
     @Value("${file.path.job}")
     private String JOB_FILE_PATH;
+
+    @Value("${csv.path.job}")
+    private String JOB_CSV_PATH;
 
     @Autowired
     private JobRepository jobRepository;
@@ -61,6 +65,7 @@ public class JobService {
                 objectMapper.enable(SerializationFeature.INDENT_OUTPUT)
                             .findAndRegisterModules()
                             .writeValue(new FileWriter(JOB_FILE_PATH), jobs);
+                CsvExporter.readJsonWriteCsv(objectMapper.writeValueAsString(jobs), JOB_CSV_PATH);
                 response.setStatusCode(StatusCode.OK);
                 response.setMessage(StatusCode.OK.getDescription());
             }
@@ -85,6 +90,7 @@ public class JobService {
                 response.setStatusCode(StatusCode.OK);
                 response.setMessage(StatusCode.OK.getDescription());
                 response.setJobDtos(jobDtos);
+
             }
         }catch (Exception e){
             response.setStatusCode(StatusCode.INTERNAL_SERVER_ERROR);

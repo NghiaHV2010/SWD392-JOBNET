@@ -22,4 +22,10 @@ public class MatchingController {
         Response response = matchingService.getMatchingJob(cvId, jobId);
         return ResponseEntity.status(response.getStatusCode().getCode()).body(response);
     }
+
+    @GetMapping("/get-top-3-jobs")
+    public ResponseEntity<Response> getTopThreeJobs(@RequestParam String cvId) {
+        Response response = matchingService.getTopThreeJobs(cvId);
+        return ResponseEntity.status(response.getStatusCode().getCode()).body(response);
+    }
 }

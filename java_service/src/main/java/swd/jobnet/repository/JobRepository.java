@@ -19,4 +19,7 @@ public interface JobRepository extends JpaRepository<Job, String> {
 
     @Query(value = "SELECT p from Job p where p.id = :id")
     Job findJobById(@Param("id")String id);
+
+    @Query(value = "SELECT * FROM jobs where description REGEXP :descriptions", nativeQuery = true)
+    List<Job> findByDescriptionWith(String descriptions);
 }

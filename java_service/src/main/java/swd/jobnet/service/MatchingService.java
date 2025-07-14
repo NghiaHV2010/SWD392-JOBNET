@@ -1,14 +1,16 @@
 package swd.jobnet.service;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import com.google.api.client.json.Json;
 import com.google.genai.Client;
 import com.google.genai.types.*;
-import org.apache.tomcat.util.json.JSONParser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import swd.jobnet.dto.CvDto;
+import swd.jobnet.dto.MatchingDto;
 import swd.jobnet.dto.Response;
 import swd.jobnet.enums.StatusCode;
 import swd.jobnet.model.Cv;
@@ -17,6 +19,7 @@ import swd.jobnet.model.Matching;
 import swd.jobnet.repository.CvRepository;
 import swd.jobnet.repository.JobRepository;
 import swd.jobnet.repository.MatchingRepository;
+import swd.jobnet.util.CsvExporter;
 import swd.jobnet.util.DtoConverter;
 
 import java.io.FileWriter;
@@ -31,14 +34,19 @@ public class MatchingService {
             "rate the matching score between CV and job from 1-100. " +
             "The output must only contain the matching score only.\n\n";
 
+    private final String TOP_3_JOBS_PROMPT = "Base on the following CV's information in cv.csv" +
+            " and jobs' information in jobs.csv, give me the top 3 jobs that fit the CV's applying job most." +
+            " The output must only return as a JSON format, contains the id of the jobs and the matching score" +
+            " between the CV and the job from 1 to 100.";
+
     @Autowired
     private JobRepository jobRepository;
 
-    @Value("${file.path.job}")
-    private String JOB_FILE_PATH;
+    @Value("${csv.path.job}")
+    private String JOB_CSV_PATH;
 
-    @Value("${file.path.cv}")
-    private String CV_FILE_PATH;
+    @Value("${csv.path.cv}")
+    private String CV_CSV_PATH;
 
     @Value("${GEMINI_API_KEY}")
     private String GEMINI_API_KEY;
@@ -49,6 +57,28 @@ public class MatchingService {
     @Autowired
     private MatchingRepository matchingRepository;
 
+    private String responseSchema = """
+        {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "jobDto": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  }
+                }
+              },
+              "score": {
+                "type": "number"
+              }
+            }
+          }
+        }
+      """;
+
     public Response getMatchingJob(String cvId, String jobId) {
         Response response = new Response();
         try {
@@ -57,10 +87,6 @@ public class MatchingService {
 
             if (findJob != null && findCv != null) {
                 ObjectMapper objectMapper = new ObjectMapper();
-                objectMapper.enable(SerializationFeature.INDENT_OUTPUT)
-                        .findAndRegisterModules()
-                        .writeValue(new FileWriter(JOB_FILE_PATH), findJob);
-                objectMapper.writeValue(new FileWriter(CV_FILE_PATH), findCv);
 
                 Client client = Client.builder().apiKey(GEMINI_API_KEY).build();
 
@@ -87,7 +113,6 @@ public class MatchingService {
                                         .build()
                         )
                         .build();
-
 
                 GenerateContentResponse aiResponse = client.models.generateContent(
                         "gemini-2.5-flash",
@@ -116,6 +141,121 @@ public class MatchingService {
         } catch (Exception e) {
             response.setStatusCode(StatusCode.INTERNAL_SERVER_ERROR);
             response.setMessage(StatusCode.INTERNAL_SERVER_ERROR.getDescription() + " khi tìm job phù hợp: " + e.getMessage());
+        }
+        return response;
+    }
+
+    public Response getTopThreeJobs(String cvId) {
+        Response response = new Response();
+        try{
+            Cv findCv = cvRepository.findCvById(cvId);
+            if (findCv != null) {
+                ObjectMapper objectMapper = new ObjectMapper();
+                objectMapper.enable(SerializationFeature.INDENT_OUTPUT)
+                            .enable(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT)
+                            .findAndRegisterModules()
+                            .disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
+                List<Cv> cvList = new ArrayList<>();
+                cvList.add(findCv);
+                String cvJson = objectMapper.writeValueAsString(cvList);
+
+                CsvExporter.readJsonWriteCsv(cvJson, CV_CSV_PATH);
+                String cvApplyJob = findCv.getApplyJob();
+
+                String getDescriptionPrompt = "Base on a CV's apply job " + cvApplyJob +", " +
+                        "give me at most 4 words in Vietnamese can contain in a job's description or hire " +
+                        "title that is suitable for the apply job. Do not include any other text except the words";
+
+                Client client = Client.builder().apiKey(GEMINI_API_KEY).build();
+
+                GenerateContentConfig descriptionConfig = GenerateContentConfig.builder()
+                        .temperature(0.1f)
+                        .thinkingConfig(
+                                ThinkingConfig.builder()
+                                        .includeThoughts(false)
+                                        .build()
+                        )
+                        .responseMimeType("application/json")
+                        .build();
+
+                GenerateContentResponse aiResponse = client.models.generateContent(
+                        "gemini-2.5-flash",
+                        getDescriptionPrompt,
+                        descriptionConfig
+                );
+                if (aiResponse == null || aiResponse.text() == null) throw new Exception("AI không trả về kết quả");
+
+                List<String> jobDescriptions = objectMapper.readValue(aiResponse.text(), new TypeReference<List<String>>(){});
+                String stringQuery = String.join("|", jobDescriptions);
+
+                List<Job> jobs = jobRepository.findByDescriptionWith(stringQuery);
+
+                if  (jobs.isEmpty()) throw new Exception("Không tìm thấy job phù hợp");
+                String jobsJson =  objectMapper.writeValueAsString(jobs);
+
+                CsvExporter.readJsonWriteCsv(jobsJson, JOB_CSV_PATH);
+
+                GenerateContentConfig responseConfig = GenerateContentConfig.builder()
+                        .temperature(0.1f)
+                        .thinkingConfig(
+                                ThinkingConfig.builder()
+                                        .includeThoughts(false)
+                                        .build()
+                        )
+                        .responseMimeType("application/json")
+                        .responseSchema(Schema.fromJson(responseSchema))
+                        .build();
+
+                List<Content> contents = new ArrayList<>();
+
+                UploadFileConfig fileConfig = UploadFileConfig.builder()
+                                            .mimeType("text/csv")
+                                            .build();
+
+                File jobFile = client.files.upload(JOB_CSV_PATH, fileConfig);
+                File cvFile = client.files.upload(CV_CSV_PATH, fileConfig);
+
+                contents.add(Content.fromParts(Part.fromUri(jobFile.uri().get(), "text/csv")));
+                contents.add(Content.fromParts(Part.fromUri(cvFile.uri().get(), "text/csv")));
+                contents.add(Content.fromParts(Part.fromText(TOP_3_JOBS_PROMPT)));
+
+                GenerateContentResponse res = client.models.generateContent(
+                        "gemini-2.5-flash",
+                        contents,
+                        responseConfig
+                );
+                if (res == null || res.text() == null) throw new Exception("AI không trả về kết quả");
+
+                List<MatchingDto> matchingDtos =  objectMapper.readValue(res.text(), new TypeReference<List<MatchingDto>>(){});
+
+                Matching matching;
+                Job findJob;
+                CvDto cvDto = new CvDto();
+                cvDto.setId(findCv.getId());
+                for (MatchingDto matchingDto : matchingDtos){
+                    findJob = jobRepository.findJobById(matchingDto.getJobDto().getId());
+                    if (findJob != null) {
+                        matching = new Matching();
+                        matching.setJob(findJob);
+                        matching.setScore(matchingDto.getScore());
+                        matching.setCv(findCv);
+                        matchingRepository.save(matching);
+                        matchingDto.setCvDto(cvDto);
+                        matchingDto.setId(findJob.getId());
+                    }
+                }
+                matchingDtos.removeIf(find -> find.getId().isEmpty());
+
+                response.setStatusCode(StatusCode.OK);
+                response.setMessage(StatusCode.OK.getDescription());
+                response.setMatchingDtos(matchingDtos);
+            } else {
+                response.setStatusCode(StatusCode.NO_CONTENT);
+                response.setMessage(StatusCode.NO_CONTENT.getDescription() + " cho CV");
+            }
+        }catch (Exception e){
+            response.setStatusCode(StatusCode.INTERNAL_SERVER_ERROR);
+            response.setMessage(StatusCode.INTERNAL_SERVER_ERROR.getDescription() + " khi tìm top 3 jobs: " + e.getMessage());
         }
         return response;
     }
