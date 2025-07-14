@@ -1,10 +1,15 @@
+// UploadCV.jsx
+import React, { useState } from "react";
+import axios from "axios";
 import { Route, Routes } from "react-router";
 import { useAuthStore } from "./store/auth.store.js";
 import { useEffect } from "react";
 import { Loader } from "lucide-react";
 import ScraperPage from "./pages/ScraperPage.jsx";
-import HomePage from "./pages/HomePage.jsx";
 import UploadCVPage from "./pages/UploadCVPage.jsx";
+import SuggestionPage from "./components/user/SuggestionsPage.jsx";
+import ReportPage from "./components/user/ReportPage.jsx";
+import HomePage from "./components/user/HomePage.jsx";
 
 function App() {
   const { isCheckingAuth, authUser, checkAuth } = useAuthStore();
@@ -23,11 +28,15 @@ function App() {
 
   return (
     <Routes>
-      <Route index path="/" element={<HomePage />} />
+      <Route index path="/" element={<></>} />
       <Route index path="/login" element={<></>} />
       <Route index path="/register" element={<></>} />
-      <Route index path="/upload-cv" element={<UploadCVPage />} />
+      <Route index path="/home" element={<HomePage />} />
       <Route index path="/scraper" element={<ScraperPage />} />
+      <Route index path="/upload-cv" element={<UploadCVPage />} />
+      <Route index path="/suggestion" element={<SuggestionPage />} />
+      <Route index path="/report" element={<ReportPage />} />
+      <Route path="/jobs" element={<JobListPage />} />
     </Routes>
   );
 }

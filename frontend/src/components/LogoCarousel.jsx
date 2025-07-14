@@ -1,58 +1,26 @@
 import React from 'react'
-import { images } from '../constants/images'
+import { websites } from '../constants/website.js'
 
-const LogoCarousel = () => {
+const LogoCarousel = ({ selectedWebsite, setSelectedWebsite }) => {
     return (
         <div className="carousel carousel-center rounded-box size-full gap-20 justify-center">
-            <div className="carousel-item carousel-item-logo">
-                <img
-                    className='grayscale scale-150'
-                    src={images.topcv_logo}
-                    alt="topcv"
-                />
-            </div>
-            <div className="carousel-item carousel-item-logo">
-                <img
-                    className='grayscale object-contain'
-                    src={images.itviec_logo}
-                    alt="itviec"
-                />
-            </div>
-            <div className="carousel-item carousel-item-logo">
-                <img
-                    className='grayscale'
-                    src={images.vieclam24h_logo}
-                    alt="vieclam24h"
-                />
-            </div>
-            <div className="carousel-item carousel-item-logo">
-                <img
-                    className='grayscale object-contain'
-                    src={images.topdev_logo}
-                    alt="topdev"
-                />
-            </div>
-            <div className="carousel-item carousel-item-logo">
-                <img
-                    className='grayscale object-contain'
-                    src={images.careerViet_logo}
-                    alt="careerviet"
-                />
-            </div>
-            <div className="carousel-item carousel-item-logo">
-                <img
-                    className='grayscale object-contain'
-                    src={images.careerLink_logo}
-                    alt="careerlink"
-                />
-            </div>
-            <div className="carousel-item carousel-item-logo">
-                <img
-                    className='grayscale'
-                    src={images.vietnamwork_logo}
-                    alt="vietnamwork"
-                />
-            </div>
+            {
+                websites.map((web, index) => (
+                    <div key={index} className="carousel-item carousel-item-logo relative">
+                        {!web.isAtice &&
+                            <div className="badge badge-error absolute z-10 l-[50%] bottom-0">
+                                Coming soon
+                            </div>
+                        }
+                        <img
+                            className={`${selectedWebsite.name === web.name ? '' : 'grayscale'} object-contain transition-all`}
+                            src={web.logo}
+                            alt={web.name}
+                            onClick={() => { web.isAtice && setSelectedWebsite(web) }}
+                        />
+                    </div>
+                ))
+            }
         </div>
     )
 }
