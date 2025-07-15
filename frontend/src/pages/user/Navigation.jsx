@@ -1,4 +1,6 @@
 import React, { memo, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import Swal from 'sweetalert2';
 import { Menu, Dropdown, Button, Layout, Avatar } from "antd";
 import {
   LogoutOutlined,
@@ -12,6 +14,7 @@ export const Navigation = ({ children, menuNavbar }) => {
   const [loading, setLoading] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
   const { Header, Sider, Content } = Layout;
+  const navigate = useNavigate();
 
   const handleClick = () => {
     setLoading(true);
@@ -44,6 +47,9 @@ export const Navigation = ({ children, menuNavbar }) => {
           timer: 2000, // Đóng sau 2 giây
           showConfirmButton: false, // Ẩn nút OK
         });
+        setTimeout(() => {
+          navigate("/login");
+        }, 1500);
       } else if (result.dismiss === Swal.DismissReason.cancel) {
         // Nếu người dùng hủy
         Swal.fire({
@@ -62,7 +68,7 @@ export const Navigation = ({ children, menuNavbar }) => {
       key: "logout",
       icon: <LogoutOutlined />,
       label: "Đăng xuất",
-      // onClick: () => setIsAuthenticated(false),
+      onClick: handleLogOut
     },
   ];
 

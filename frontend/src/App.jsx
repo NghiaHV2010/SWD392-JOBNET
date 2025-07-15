@@ -2,8 +2,10 @@
 import { Route, Routes } from "react-router";
 import { useAuthStore } from "./store/auth.store.js";
 import { useEffect } from "react";
+import { ToastContainer } from "react-toastify";
 import { Loader } from "lucide-react";
 import ScraperPage from "./pages/ScraperPage.jsx";
+import UploadCV from "./pages/UploadCVPage.jsx";
 import {
   Login,
   Register,
@@ -30,21 +32,25 @@ function App() {
   }
 
   return (
-    <Routes>
-      <Route element={<PublicLayout />}>
-        <Route index element={<HomePage />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-      </Route>
+    <div>
+      <ToastContainer position="top-right" autoClose={1000} limit={3} />
+      <Routes>
+        <Route element={<PublicLayout />}>
+          <Route index element={<HomePage />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/upload" element={<UploadCV />} />
+        </Route>
 
-      <Route path="user" element={<PublicUser />}>
-        <Route index element={<HomePage />} />
-        <Route index path="scraper" element={<ScraperPage />} />
-        <Route index path="suggestion" element={<SuggestionsPage />} />
-        <Route index path="report" element={<ReportPage />} />
-        <Route path="/jobs" element={<JobListPage />} />
-      </Route>
-    </Routes>
+        <Route path="user" element={<PublicUser />}>
+          <Route index element={<HomePage />} />
+          <Route index path="scraper" element={<ScraperPage />} />
+          <Route index path="suggestion" element={<SuggestionsPage />} />
+          <Route index path="report" element={<ReportPage />} />
+          <Route path="jobs" element={<JobListPage />} />
+        </Route>
+      </Routes>
+    </div>
   );
 }
 

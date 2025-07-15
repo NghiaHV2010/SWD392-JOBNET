@@ -2,7 +2,8 @@ import React, { useState } from "react";
 import { Button, Form, Input, Checkbox, Card, message } from "antd";
 import { Mail, Lock } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-// import { UserLogin } from "../../apis/UserServices";
+import { toast } from 'react-toastify';
+import { UserLogin } from "../../apis/UserServices";
 
 export const Login = () => {
   const [loading, setLoading] = useState(false);
@@ -10,17 +11,26 @@ export const Login = () => {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
-  const onFinish = (values) => {
-    setPayload(values);
-  };
-
-  const handleLogin = async () => {
-    if (payload.email === "test@gmail.com" && payload.password === "123456") {
+  const handleLogin = async (values) => {
+    const { email, password } = values;
+    if (email && password) {
       setIsLoading(true);
-      message.success("Đăng nhập thành công!");
-      navigate("/user");
-    } else {
-      message.error("Email hoặc mật khẩu không đúng!");
+      try {
+        const response = await UserLogin({ email, password });
+        setIsLoading(false);
+
+        if (response?.status === 200) {
+          toast.success("Đăng nhập thành công!");
+          navigate("/user");
+        } else {
+          toast.error("Đăng nhập thất bại!");
+          console.log(response.data?.message || "Lỗi không xác định");
+        }
+      } catch (error) {
+        setIsLoading(false);
+        toast.error("Đăng nhập thất bại!");
+        console.error(error);
+      }
     }
   };
 
@@ -31,7 +41,12 @@ export const Login = () => {
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Đăng nhập</h1>
           <p className="text-gray-600">Chào mừng trở lại Job Portal AI</p>
         </div>
-        <Form name="login" onFinish={handleLogin} layout="vertical" size="large">
+        <Form
+          name="login"
+          onFinish={handleLogin}
+          layout="vertical"
+          size="large"
+        >
           <Form.Item
             label="Email"
             name="email"
