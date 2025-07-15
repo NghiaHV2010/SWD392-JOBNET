@@ -80,3 +80,24 @@ const sampleResumeData = {
 };
 
 export {sampleResumeData}
+
+const sampleJobsData = {
+  jobDtos: [
+    {
+      id: "1",
+      title: "Senior Developer",
+      jobLevel: "Nhân viên",
+      applyLocation: "Hồ Chí Minh",
+      salary: "20 - 30 triệu"
+    },
+    {
+      id: "2",
+      title: "Data Analyst",
+      jobLevel: "Nhân viên",
+      applyLocation: "Hà Nội",
+      salary: "Thỏa thuận"
+    }
+  ]
+};
+
+export { sampleJobsData };

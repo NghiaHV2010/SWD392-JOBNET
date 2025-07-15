@@ -1,19 +1,38 @@
-import React, { useState } from "react";
-import { Tabs, Button, Pagination } from "antd";
+import React, { useState, useEffect } from "react";
+import { Tabs, Button, Spin, Pagination, Empty } from "antd";
+import { getAllJobs } from "../../apis/JobServices";
+import { sampleJobsData } from "../../constants/sampleData";
 import SuggestionItem from "./SuggestionItem";
 
 function SuggestionPage() {
+  const [isLoading, setIsLoading] = useState(false);
+  const [jobList, setJobList] = useState([]);
+  const [totalJobs, setTotalJobs] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 12;
 
-  const jobList = Array.from({ length: 30 }, (_, i) => ({
-    position: `Software Developer ${i + 1}`,
-    company: `Company ${i + 1}`,
-    city: ["Ho Chi Minh City", "Hanoi", "Da Nang"][i % 3],
-    salary: `$${2000 + i * 50} - $${3000 + i * 50}`,
-    time: ["Full-time", "Remote", "Hybrid"][i % 3],
-    postedDay: `${i + 1} day${i + 1 > 1 ? "s" : ""} ago`,
-  }));
+  useEffect(() => {
+    fetchJobs(currentPage);
+  }, [currentPage]);
+
+  const fetchJobs = async (page) => {
+    setIsLoading(true);
+    try {
+      const res = await getAllJobs(page);
+      const jobData = res?.jobDtos?.length
+        ? res.jobDtos
+        : sampleJobsData.jobDtos;
+      setJobList(jobData);
+      setTotalJobs(jobData.length);
+    } catch (error) {
+      console.error("Lỗi khi fetch jobs:", error);
+      const fallbackData = sampleJobsData.jobDtos;
+      setJobList(fallbackData);
+      setTotalJobs(fallbackData.length);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
@@ -33,17 +52,19 @@ function SuggestionPage() {
           <h2 className="text-xl font-semibold text-gray-900 mt-2">
             Jobs Recommended for You
           </h2>
-          {/* <div className="space-y-4 mt-4">
-            {paginatedJobs.map((job, index) => (
-              <SuggestionItem key={index} {...job} />
-            ))}
-          </div> */}
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
-            {paginatedJobs.map((job, index) => (
-              <SuggestionItem key={index} {...job} />
-            ))}
-          </div>
+          {isLoading ? (
+            <div className="flex justify-center items-center h-40">
+              <Spin />
+            </div>
+          ) : jobList.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
+              {jobList.map((job, index) => (
+                <SuggestionItem key={job.id || index} {...job} />
+              ))}
+            </div>
+          ) : (
+            <Empty description="Không có công việc nào" className="mt-8" />
+          )}
         </>
       ),
     },
@@ -70,7 +91,7 @@ function SuggestionPage() {
             <Pagination
               current={currentPage}
               pageSize={pageSize}
-              total={jobList.length}
+              total={totalJobs}
               onChange={handlePageChange}
               showSizeChanger={false}
             />
@@ -80,54 +101,5 @@ function SuggestionPage() {
     </div>
   );
 }
-
-const fakeSuggestions = Array.from({ length: 40 }, (_, i) => ({
-  id: i + 1,
-  title: `Suggestion Title ${i + 1}`,
-  description: `This is a short description for suggestion item ${
-    i + 1
-  }. It helps explain what this suggestion is about.`,
-}));
-
-// const SuggestionPage = () => {
-//   const [currentPage, setCurrentPage] = useState(1);
-//   const pageSize = 12;
-
-//   // ✅ DỮ LIỆU GIẢ
-//   const suggestions = Array.from({ length: 40 }, (_, i) => ({
-//     id: i + 1,
-//     title: `Suggestion Title ${i + 1}`,
-//     description: `This is a short description for suggestion item ${i + 1}.`,
-//   }));
-
-//   const paginatedData = suggestions.slice(
-//     (currentPage - 1) * pageSize,
-//     currentPage * pageSize
-//   );
-
-//   const handlePageChange = (page) => {
-//     setCurrentPage(page);
-//   };
-
-//   return (
-//     <div className="p-6">
-//       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-//         {paginatedData.map((item) => (
-//           <SuggestionItem key={item.id} data={item} />
-//         ))}
-//       </div>
-
-//       <div className="flex justify-center mt-8">
-//         <Pagination
-//           current={currentPage}
-//           pageSize={pageSize}
-//           total={suggestions.length}
-//           onChange={handlePageChange}
-//           showSizeChanger={false}
-//         />
-//       </div>
-//     </div>
-//   );
-// };
 
 export default SuggestionPage;

@@ -1,11 +1,40 @@
-import React, { useState } from 'react';
-import { Button, Form, Input, Checkbox, Card, message } from 'antd';
-import { Mail, Lock, User, Building } from 'lucide-react';
-import { Navigate, useNavigate } from 'react-router-dom'
+import React, { useState } from "react";
+import { Button, Form, Input, Checkbox, Card, message } from "antd";
+import { Mail, Lock, User, Building } from "lucide-react";
+import { Navigate, useNavigate } from "react-router-dom";
+import { UserRegister } from "../../apis/UserServices";
+import { toast } from "react-toastify";
 
 export const Register = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+
+  const onFinish = async (values) => {
+    const { username, email, password } = values;
+    const payload = {
+      username,
+      email,
+      password,
+    };
+
+    try {
+      setLoading(true);
+      const response = await UserRegister(payload);
+      setLoading(false);
+
+      if ((response && response.status === 200) || response.status === 201) {
+        toast.success("Đăng ký thành công!");
+        navigate("/login");
+      } else {
+        toast.error("Đăng ký thất bại!");
+        console.log(response.data?.message || "Lỗi không xác định");
+      }
+    } catch (error) {
+      setLoading(false);
+      console.log(error);
+      toast.error("Có lỗi xảy ra khi đăng ký!");
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
@@ -17,14 +46,14 @@ export const Register = () => {
 
         <Form
           name="register"
-          // onFinish={onFinish}
+          onFinish={onFinish}
           layout="vertical"
           size="large"
         >
           <Form.Item
-            label="Họ tên"
-            name="fullName"
-            rules={[{ required: true, message: 'Vui lòng nhập họ tên!' }]}
+            label="Username"
+            name="username"
+            rules={[{ required: true, message: "Vui lòng nhập username!" }]}
           >
             <Input
               prefix={<User className="w-4 h-4 text-gray-400" />}
@@ -36,8 +65,8 @@ export const Register = () => {
             label="Email"
             name="email"
             rules={[
-              { required: true, message: 'Vui lòng nhập email!' },
-              { type: 'email', message: 'Email không hợp lệ!' }
+              { required: true, message: "Vui lòng nhập email!" },
+              { type: "email", message: "Email không hợp lệ!" },
             ]}
           >
             <Input
@@ -50,8 +79,8 @@ export const Register = () => {
             label="Mật khẩu"
             name="password"
             rules={[
-              { required: true, message: 'Vui lòng nhập mật khẩu!' },
-              { min: 6, message: 'Mật khẩu phải có ít nhất 6 ký tự!' }
+              { required: true, message: "Vui lòng nhập mật khẩu!" },
+              { min: 6, message: "Mật khẩu phải có ít nhất 6 ký tự!" },
             ]}
           >
             <Input.Password
@@ -63,15 +92,17 @@ export const Register = () => {
           <Form.Item
             label="Xác nhận mật khẩu"
             name="confirmPassword"
-            dependencies={['password']}
+            dependencies={["password"]}
             rules={[
-              { required: true, message: 'Vui lòng xác nhận mật khẩu!' },
+              { required: true, message: "Vui lòng xác nhận mật khẩu!" },
               ({ getFieldValue }) => ({
                 validator(_, value) {
-                  if (!value || getFieldValue('password') === value) {
+                  if (!value || getFieldValue("password") === value) {
                     return Promise.resolve();
                   }
-                  return Promise.reject(new Error('Mật khẩu xác nhận không khớp!'));
+                  return Promise.reject(
+                    new Error("Mật khẩu xác nhận không khớp!")
+                  );
                 },
               }),
             ]}
@@ -86,14 +117,17 @@ export const Register = () => {
             name="agreement"
             valuePropName="checked"
             rules={[
-              { validator: (_, value) => 
-                value ? Promise.resolve() : Promise.reject(new Error('Vui lòng đồng ý với điều khoản!'))
-              }
+              {
+                validator: (_, value) =>
+                  value
+                    ? Promise.resolve()
+                    : Promise.reject(
+                        new Error("Vui lòng đồng ý với điều khoản!")
+                      ),
+              },
             ]}
           >
-            <Checkbox>
-              Tôi đồng ý với điều khoản sử dụng
-            </Checkbox>
+            <Checkbox>Tôi đồng ý với điều khoản sử dụng</Checkbox>
           </Form.Item>
 
           <Form.Item>
@@ -109,8 +143,8 @@ export const Register = () => {
 
           <div className="text-center">
             <span className="text-gray-600">Đã có tài khoản? </span>
-            <Button 
-              type="link" 
+            <Button
+              type="link"
               onClick={() => navigate("/login")}
               className="p-0 text-blue-600 hover:text-blue-700"
             >
@@ -120,7 +154,7 @@ export const Register = () => {
         </Form>
       </Card>
     </div>
-  )
-}
+  );
+};
 
 export default Register;
