@@ -7,5 +7,6 @@ export { default as Register } from "./login/Register";
 // export { default as FileUpload } from "./user/FileUpload";
 // export { default as LogoCarousel } from "./LogoCarousel";
 export { default as ReportPage } from "./user/ReportPage";
+export { default as JobDetailPage } from "./user/JobDetailPage";
 export { default as SuggestionItem } from "./user/SuggestionItem";
 export { default as SuggestionsPage } from "./user/SuggestionsPage";

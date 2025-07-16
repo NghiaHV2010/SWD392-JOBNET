@@ -1,13 +1,23 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import { Button, Tag } from "antd";
 
-const SuggestionItem = ({ jobLevel, title, applyLocation, salary }) => {
+const SuggestionItem = ({ jobLevel, title, applyLocation, salary, id }) => {
+  const navigate = useNavigate();
+
+  const handleClickJob = () => {
+    navigate(`job/${id}`);
+  };
+
   return (
-    <div className="bg-white rounded-lg border border-gray-200 p-4 flex items-start gap-4 shadow-sm hover:shadow-md transition-all duration-300">
+    <div
+      onClick={handleClickJob}
+      className="bg-white rounded-lg border border-gray-200 p-4 flex items-start gap-4 shadow-sm hover:shadow-md transition-all duration-300"
+    >
       {/* Logo công ty */}
-      <div className="w-12 h-12 rounded-md bg-gray-100 flex items-center justify-center">        
+      {/* <div className="w-12 h-12 rounded-md bg-gray-100 flex items-center justify-center">
         <span className="text-gray-400 font-semibold text-sm">LOGO</span>
-      </div>
+      </div> */}
 
       {/* Nội dung */}
       <div className="flex-1">
@@ -17,7 +27,9 @@ const SuggestionItem = ({ jobLevel, title, applyLocation, salary }) => {
         <p className="text-sm text-gray-500 mt-1">{jobLevel}</p>
         <div className="flex items-center text-sm text-gray-600 mt-2 gap-4">
           <span className="bg-gray-100 px-2 py-0.5 rounded">{salary}</span>
-          <span className="bg-gray-100 px-2 py-0.5 rounded">{applyLocation}</span>
+          <span className="bg-gray-100 px-2 py-0.5 rounded">
+            {applyLocation}
+          </span>
         </div>
       </div>
     </div>
