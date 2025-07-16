@@ -38,11 +38,6 @@ function SuggestionPage() {
     setCurrentPage(page);
   };
 
-  const paginatedJobs = jobList.slice(
-    (currentPage - 1) * pageSize,
-    currentPage * pageSize
-  );
-
   const tabItems = [
     {
       key: "jobs",

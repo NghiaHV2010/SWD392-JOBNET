@@ -7,6 +7,7 @@ import { Loader } from "lucide-react";
 import ScraperPage from "./pages/ScraperPage.jsx";
 import UploadCV from "./pages/UploadCVPage.jsx";
 import {
+  JobDetailPage,
   Login,
   Register,
   ReportPage,
@@ -46,6 +47,7 @@ function App() {
           <Route index element={<HomePage />} />
           <Route index path="scraper" element={<ScraperPage />} />
           <Route index path="suggestion" element={<SuggestionsPage />} />
+          <Route index path={"suggestion/job/:id"} element={<JobDetailPage />} />
           <Route index path="report" element={<ReportPage />} />
           <Route path="jobs" element={<JobListPage />} />
         </Route>

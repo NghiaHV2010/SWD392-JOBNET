@@ -15,3 +15,19 @@ export const getAllJobs = (page) =>
       // reject(error);
     }
   });
+
+  export const getJobById = (jobId) =>
+  new Promise(async (resolve, reject) => {
+    try {
+      const response = await axiosConfig({
+        method: 'get',
+        url: `job/get-by-id/${jobId}`,
+        // headers: {
+        //   Authorization: `Bearer ${token}`
+        // }
+      });
+      resolve(response.data);
+    } catch (error) {
+      reject(error);
+    }
+  });
