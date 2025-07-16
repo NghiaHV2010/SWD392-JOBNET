@@ -17,13 +17,13 @@ public class JobController {
     private JobService jobService;
 
     @GetMapping("/get-by-company-name")
-    public ResponseEntity<Response> getByCompanyName(@RequestBody CompanyDto companyDto){
-        Response response = jobService.getJobsByCompanyName(companyDto);
+    public ResponseEntity<Response> getByCompanyName(@RequestParam String companyName){
+        Response response = jobService.getJobsByCompanyName(companyName);
         return ResponseEntity.status(response.getStatusCode().getCode()).body(response);
     }
 
     @GetMapping("/export-by-company-name")
-    public ResponseEntity<Response> exportByCompanyName(@RequestBody CompanyDto companyDto){
+    public ResponseEntity<Response> exportByCompanyName(@RequestParam CompanyDto companyDto){
         Response response = jobService.exportJobsByCompanyName(companyDto);
         return ResponseEntity.status(response.getStatusCode().getCode()).body(response);
     }
@@ -35,8 +35,8 @@ public class JobController {
     }
 
     @GetMapping("/get-by-id")
-    public ResponseEntity<Response> getJobById(@RequestBody JobDto jobDto){
-        Response response = jobService.getJobById(jobDto);
+    public ResponseEntity<Response> getJobById(@RequestParam String jobId){
+        Response response = jobService.getJobById(jobId);
         return ResponseEntity.status(response.getStatusCode().getCode()).body(response);
     }
 }

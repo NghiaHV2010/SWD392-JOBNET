@@ -22,4 +22,17 @@ public class CsvExporter {
                 .with(csvSchema)
                 .writeValue(new File(file_path), jsonTree);
     }
+
+    public static void readJsonWriteCsvWithoutHeader(String jsonString, String file_path) throws Exception {
+        JsonNode jsonTree = new ObjectMapper().readTree(jsonString);
+        CsvSchema.Builder csvSchemaBuilder = CsvSchema.builder();
+        csvSchemaBuilder.addColumn("title");
+        csvSchemaBuilder.addColumn("salary");
+        CsvSchema csvSchema = csvSchemaBuilder.build().withHeader();
+
+        CsvMapper csvMapper = new CsvMapper();
+        csvMapper.writerFor(JsonNode.class)
+                .with(csvSchema)
+                .writeValue(new File(file_path), jsonTree);
+    }
 }

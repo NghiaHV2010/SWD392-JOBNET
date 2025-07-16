@@ -5,6 +5,10 @@ target/
 !**/src/test/**/target/
 application.properties
 save_files/
+.dockerignore
+Dockerfile
+compose.yaml
+README.Docker.md
 
 ### STS ###
 .apt_generated

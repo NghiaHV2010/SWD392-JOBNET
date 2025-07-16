@@ -22,4 +22,9 @@ public interface JobRepository extends JpaRepository<Job, String> {
 
     @Query(value = "SELECT * FROM jobs where description REGEXP :descriptions", nativeQuery = true)
     List<Job> findByDescriptionWith(String descriptions);
+
+    @Query(value = "SELECT title, salary FROM jobs where (description REGEXP :tag" +
+                    " OR title REGEXP :tag)" +
+                    " AND (salary NOT LIKE 'Thoả thuận' AND salary NOT LIKE'Thương lượng')", nativeQuery = true)
+    List<Object[]> findByDescriptionOrTitleWith(String tag);
 }

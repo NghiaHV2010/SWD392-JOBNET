@@ -21,4 +21,5 @@ public class Response {
     private List<CompanyDto> companyDtos;
     private List<MatchingDto> matchingDtos;
     private List<UserDto> userDtos;
+    private Report report;
 }

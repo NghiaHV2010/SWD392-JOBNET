@@ -32,10 +32,10 @@ public class JobService {
     @Autowired
     private JobRepository jobRepository;
 
-    public Response getJobsByCompanyName(CompanyDto companyName) {
+    public Response getJobsByCompanyName(String companyName) {
         Response response = new Response();
         try {
-            List<Job> jobs = jobRepository.findByCompanyName(companyName.getCompanyName());
+            List<Job> jobs = jobRepository.findByCompanyName(companyName);
             if (jobs.isEmpty()) {
                 response.setStatusCode(StatusCode.NO_CONTENT);
                 response.setMessage(StatusCode.NO_CONTENT.getDescription());
@@ -99,10 +99,10 @@ public class JobService {
         return  response;
     }
 
-    public Response getJobById(JobDto jobDto){
+    public Response getJobById(String jobId){
         Response response = new Response();
         try{
-            Job job = jobRepository.findJobById(jobDto.getId());
+            Job job = jobRepository.findJobById(jobId);
             if (job.getId().isEmpty()) {
                 response.setStatusCode(StatusCode.NO_CONTENT);
                 response.setMessage(StatusCode.NO_CONTENT.getDescription());
