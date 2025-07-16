@@ -23,7 +23,7 @@ public class JobController {
     }
 
     @GetMapping("/export-by-company-name")
-    public ResponseEntity<Response> exportByCompanyName(@RequestParam CompanyDto companyDto){
+    public ResponseEntity<Response> exportByCompanyName(@RequestBody CompanyDto companyDto){
         Response response = jobService.exportJobsByCompanyName(companyDto);
         return ResponseEntity.status(response.getStatusCode().getCode()).body(response);
     }

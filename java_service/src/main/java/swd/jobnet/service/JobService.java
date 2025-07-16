@@ -79,7 +79,7 @@ public class JobService {
     public Response getAllJobs(int page){
         Response response = new Response();
         try{
-            Pageable pageable = PageRequest.of(page-1, 5);
+            Pageable pageable = PageRequest.of(page-1, 20);
             Page<Job> jobs = jobRepository.findAll(pageable);
             if (jobs.isEmpty()) {
                 response.setStatusCode(StatusCode.NO_CONTENT);
