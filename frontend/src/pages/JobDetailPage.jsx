@@ -23,7 +23,7 @@ import {
 const fetchJobById = async (jobId) => {
   try {
     // Replace with your actual API endpoint
-    const baseUrl = "https://your-api-endpoint.com/api";
+    const baseUrl = "http://localhost:8080/api";
 
     const response = await fetch(`${baseUrl}/job/${jobId}`, {
       method: "GET",
