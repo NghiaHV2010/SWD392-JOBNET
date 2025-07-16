@@ -16,6 +16,7 @@ import { HomePage, PublicLayout } from "./pages/index.jsx";
 import PublicUser from "./pages/user/PublicUser.jsx";
 import JobListPage from "./pages/JobListPage.jsx";
 import UploadCVPage from "./pages/UploadCVPage.jsx";
+import ProfilePage from "./pages/ProfilePage.jsx";
 
 function App() {
   const { isCheckingAuth, authUser, checkAuth } = useAuthStore();
@@ -45,11 +46,13 @@ function App() {
 
         <Route path="user" element={<PublicUser />}>
           <Route index element={<HomePage />} />
-          <Route index path="scraper" element={<ScraperPage />} />
           <Route index path="suggestion" element={<SuggestionsPage />} />
           <Route index path="report" element={<ReportPage />} />
           <Route path="jobs" element={<JobListPage />} />
+          <Route path="scraper" element={<ScraperPage />} />
         </Route>
+          <Route path="/profile" element={<ProfilePage />} />
+
       </Routes>
     </div>
   );

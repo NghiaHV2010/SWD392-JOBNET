@@ -86,7 +86,7 @@ const HomePage = () => {
                 size="large"
                 className="bg-blue-600 hover:bg-blue-700 border-none h-12 px-8 text-lg font-semibold"
                 icon={<Upload className="w-5 h-5" />}
-                onClick={() => navigate('upload')}
+                onClick={() => navigate('/upload')}
               >
                 Tải CV lên ngay
               </Button>

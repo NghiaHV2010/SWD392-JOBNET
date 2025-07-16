@@ -7,8 +7,11 @@ import cors from "cors";
 import scraperRoute from "./routes/scraper.routes.js";
 import authRoute from "./routes/auth.routes.js";
 import companyRoute from "./routes/company.routes.js";
+import cvRoute from "./routes/cv.routes.js";
 
 const app = express();
+
+const midURL = "/api/v1/";
 
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
@@ -18,10 +21,11 @@ app.use(cors({
     credentials: true
 }))
 
-app.use("/api/v1/", uploadRoute);
-app.use("/api/v1/", scraperRoute);
-app.use("/api/v1/", authRoute);
-app.use("/api/v1/", companyRoute);
+app.use(midURL, uploadRoute);
+app.use(midURL, scraperRoute);
+app.use(midURL, authRoute);
+app.use(midURL, companyRoute);
+app.use(midURL, cvRoute);
 
 app.use(errorMiddleware);
 
