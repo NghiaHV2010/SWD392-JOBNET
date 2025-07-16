@@ -17,6 +17,8 @@ import { HomePage, PublicLayout } from "./pages/index.jsx";
 import PublicUser from "./pages/user/PublicUser.jsx";
 import JobListPage from "./pages/JobListPage.jsx";
 import UploadCVPage from "./pages/UploadCVPage.jsx";
+import CompanyListPage from "./pages/CompanyListPage.jsx";
+import CompanyDetailPage from "./pages/CompanyDetailPage.jsx";
 import ProfilePage from "./pages/ProfilePage.jsx";
 
 function App() {
@@ -42,7 +44,7 @@ function App() {
           <Route index element={<HomePage />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-          <Route path="/upload" element={<UploadCV />} />
+          <Route path="/upload" element={<UploadCVPage />} />
         </Route>
 
         <Route path="user" element={<PublicUser />}>
@@ -50,9 +52,12 @@ function App() {
           <Route index path="suggestion" element={<SuggestionsPage />} />
           <Route index path={"suggestion/job/:id"} element={<JobDetailPage />} />
           <Route index path="report" element={<ReportPage />} />
-          <Route path="jobs" element={<JobListPage />} />
+          <Route index path="jobs" element={<JobListPage />} />
+          <Route path="companies" element={<CompanyListPage />} />
           <Route path="scraper" element={<ScraperPage />} />
         </Route>
+
+        <Route path="/companies/:id" element={<CompanyDetailPage />} />
           <Route path="/profile" element={<ProfilePage />} />
 
       </Routes>
