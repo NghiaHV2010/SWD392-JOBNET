@@ -10,6 +10,8 @@ import {
 import CV from "../components/CV.jsx";
 import { sampleResumeData } from "../constants/sampleData.js";
 import { axiosConfig } from "../config/axios.config";
+import "../styles/uploadCVPage.css";
+import { toast } from "react-toastify";
 
 function UploadCVPage() {
   const [dragActive, setDragActive] = useState(false);
@@ -20,6 +22,7 @@ function UploadCVPage() {
   const fileInputRef = useRef(null);
   const [jobs, setJobs] = useState([]);
   const [resume, setResume] = useState(null);
+  const [isScanning, setIsScanning] = useState(false);
 
   const formatFileSize = (bytes) => {
     if (bytes === 0) return "0 Bytes";
@@ -125,7 +128,6 @@ function UploadCVPage() {
       if (response.status !== 200) throw new Error("Failed to upload CV");
 
       const data = response.data?.data;
-      // setJobs(data.jobs || []);
       setResume(data)
       setUploadComplete(true);
       document.getElementById('my_modal_5').showModal();
@@ -135,6 +137,24 @@ function UploadCVPage() {
       setUploading(false);
     }
   };
+
+  const getSutableJobsByCV = async () => {
+    setIsScanning(true);
+    try {
+      const response = await axiosConfig.get(`http://localhost:8080/api/matching/get-top-3-jobs?cvId=${resume?.id}`);
+
+      if (response.status !== 200) toast.error("Scanning faild!");
+
+      console.log(response.data);
+      // setJobs(response.data?.data);
+      
+
+    } catch (error) {
+      toast.error("Scanning faild!");
+    } finally {
+      setIsScanning(false);
+    }
+  }
 
   const goBack = () => {
     window.history.back();
@@ -177,8 +197,8 @@ function UploadCVPage() {
               {!uploadedFile ? (
                 <div
                   className={`relative border-2 border-dashed rounded-xl p-12 text-center transition-all duration-200 ${dragActive
-                      ? "border-indigo-500 bg-indigo-50 scale-105"
-                      : "border-gray-300 hover:border-indigo-400 hover:bg-gray-50"
+                    ? "border-indigo-500 bg-indigo-50 scale-105"
+                    : "border-gray-300 hover:border-indigo-400 hover:bg-gray-50"
                     } cursor-pointer`}
                   onDragEnter={handleDrag}
                   onDragLeave={handleDrag}
@@ -289,10 +309,10 @@ function UploadCVPage() {
                     onClick={handleUpload}
                     disabled={uploading || uploadComplete}
                     className={`flex-1 flex items-center justify-center px-6 py-3 rounded-xl font-semibold transition-all duration-200 ${uploadComplete
-                        ? "bg-green-100 text-green-700 cursor-default"
-                        : uploading
-                          ? "bg-indigo-400 text-white cursor-not-allowed"
-                          : "bg-indigo-600 text-white hover:bg-indigo-700 hover:shadow-lg transform hover:-translate-y-0.5"
+                      ? "bg-green-100 text-green-700 cursor-default"
+                      : uploading
+                        ? "bg-indigo-400 text-white cursor-not-allowed"
+                        : "bg-indigo-600 text-white hover:bg-indigo-700 hover:shadow-lg transform hover:-translate-y-0.5"
                       }`}
                   >
                     {uploading ? (
@@ -334,11 +354,23 @@ function UploadCVPage() {
       </div>
       <dialog id="my_modal_5" className="modal modal-bottom sm:modal-middle">
         <div className="modal-box max-w-[60rem] bg-neutral-100">
-          <CV data={resume || sampleResumeData} />
+          {isScanning &&
+            <>
+              <div id="scanning">
+              </div>
+              <div className="text-xl text-black sticky top-[50%] w-[100%] text-center">
+                Đang tìm công việc phù hợp với bạn...
+              </div>
+
+            </>
+          }
+            <CV data={resume || sampleResumeData} />
+
           <div className="modal-action">
-            <form method="dialog">
+            <form method="dialog" className="flex gap-2">
               {/* if there is a button in form, it will close the modal */}
-              <button className="btn">Close</button>
+              <button className="btn bg-blue-500" onClick={() => getSutableJobsByCV()} disabled={isScanning}>Tìm việc phù hợp với CV</button>
+              <button className="btn" disabled={isScanning}>Đóng</button>
             </form>
           </div>
         </div>

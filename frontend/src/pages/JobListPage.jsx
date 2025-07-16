@@ -19,7 +19,7 @@ import {
 const fetchJobs = async (page = 1, search = "", companyName = "") => {
   try {
     // Replace with your actual API endpoint
-    const baseUrl = "https://your-api-endpoint.com/api";
+    const baseUrl = "http://localhost:8080/api";
 
     // If searching by company name
     if (companyName) {

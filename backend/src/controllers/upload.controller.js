@@ -142,12 +142,12 @@ export const uploadFile = async (req, res, next) => {
                     description: parseText.summary,
                     apply_job: parseText.apply_job,
                     projects: JSON.stringify(parseText.projects),
-                    user_id: "dd30d150-ee16-43aa-9663-7bbdda957ca6"
+                    user_id: req.user.id
                 }
             });            
 
             return res.status(HTTP_SUCCESS.OK).json({
-                data: parseText
+                data: {...parseText, id: cv.id}
             })
         } catch (error) {
             throw new Error(error)
